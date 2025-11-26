@@ -37,23 +37,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('sendMessage').addEventListener('click', () => {
+    document.getElementById('sendMessage').addEventListener('click', async () => {
+        const idInstance = document.getElementById('idInstance').value;
+        const apiTokenInstance = document.getElementById('apiTokenInstance').value;
         const recipient = document.getElementById('messageRecipient').value;
         const message = document.getElementById('messageText').value;
-        updateOutput({ 
-            idMessage: "3EB0C7C7D037B7C7C030",
-            recipient: recipient,
+        
+        if (!idInstance || !apiTokenInstance || !recipient || !message) {
+            updateOutput({ 
+                error: 'Please fill in all required fields: idInstance, apiTokenInstance, recipient, and message'
+            }, 'sendMessage');
+            return;
+        }
+
+        const url = `${apiUrl}/waInstance${idInstance}/sendMessage/${apiTokenInstance}`;
+        const body = {
+            chatId: `${recipient}@c.us`,
             message: message
-        }, 'sendMessage');
+        };
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+            const data = await response.json();
+            updateOutput({ 
+                url: url,
+                requestBody: body,
+                response: data
+            }, 'sendMessage');
+        } catch (error) {
+            updateOutput({ 
+                url: url,
+                requestBody: body,
+                error: error.message
+            }, 'sendMessage');
+        }
     });
 
-    document.getElementById('sendFileByUrl').addEventListener('click', () => {
-        const recipient = document.getElementById('fileRecipient').value;
-        const fileUrl = document.getElementById('fileUrl').value;
-        updateOutput({ 
-            idMessage: "3EB0C7C7D037B7C7C030",
-            recipient: recipient,
-            fileUrl: fileUrl
-        }, 'sendFileByUrl');
-    });
+    // document.getElementById('sendFileByUrl').addEventListener('click', () => {
+    //     const recipient = document.getElementById('fileRecipient').value;
+    //     const fileUrl = document.getElementById('fileUrl').value;
+    //     updateOutput({ 
+    //         idMessage: "3EB0C7C7D037B7C7C030",
+    //         recipient: recipient,
+    //         fileUrl: fileUrl
+    //     }, 'sendFileByUrl');
+    // });
 });
